@@ -97,14 +97,14 @@ class MySQLRepository implements RepositoryInterface {
     }
 
     public function listWithRange(DateTimeInterface $start, DateTimeInterface $end): array {
-        $sql = "SELECT * FROM airpressure WHERE created >= :start AND created <= :end ORDER BY id desc";
+        $sql = "SELECT * FROM airpressure WHERE created >= :created_start AND created <= :created_end ORDER BY id ASC limit 1000";
 
         $statement = $this->getPdo()->prepare($sql);
 
-        $statement->bindValue(':start', $start->format(self::DATE_FORMAT_TIMESTAMP), PDO::PARAM_STR);
-        $statement->bindValue(':end', $end->format(self::DATE_FORMAT_TIMESTAMP), PDO::PARAM_STR);
-
-        $statement->execute();
+        $statement->execute([
+            'created_start' => $start->format(self::DATE_FORMAT_TIMESTAMP),
+            'created_end' => $end->modify('+1 day -1 microsecond')->format(self::DATE_FORMAT_TIMESTAMP)
+        ]);
         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
         return array_map(
             fn ($result) => $this->_mapRowToModel($result), 
