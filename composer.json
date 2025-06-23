@@ -1,0 +1,48 @@
+{
+    "name": "hjkep/air-pressure",
+    "type": "project",
+    "require": {
+        "guzzlehttp/guzzle": "^7.9",
+        "robmorgan/phinx": "^0.16.9",
+        "php": "^8.4",
+        "ext-pdo": "*",
+        "pear/console_commandline": "^1.2",
+        "hassankhan/config": "^3.2",
+        "slim/slim": "4.*",
+        "guzzlehttp/psr7": "^2"
+    },
+    "autoload": {
+        "psr-4": {
+            "AirPressure\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "H.J. Keppel"
+        }
+    ],
+    "scripts": {
+        "do-run": "AirPressure\\Main::run",
+        "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon",
+        "phplint": "./vendor/bin/phplint src/",
+        "tests": "./vendor/bin/pest --parallel",
+        "qa": [
+            "@phpstan",
+            "@phplint",
+            "@tests"
+        ],
+        "phinx:status": "./vendor/bin/phinx status --configuration=config/phinx.php -e development",
+        "phinx:migrate": "./vendor/bin/phinx migrate --configuration=config/phinx.php -e development"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "overtrue/phplint": "^9.6",
+        "pestphp/pest": "^3.8"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

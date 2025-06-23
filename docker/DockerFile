@@ -1,0 +1,12 @@
+FROM php:8.4-fpm-bookworm AS php-hj-base
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git && \
+    docker-php-ext-install pdo_mysql && \
+    apt-get install -y zip unzip && \
+    git config --global --add safe.directory '*'
+COPY docker/.gitconfig.web /var/www/.gitconfig
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+RUN mkdir -p /var/www/.composer && \
+    chown -R www-data:www-data /var/www/.composer
+WORKDIR /var/www/app

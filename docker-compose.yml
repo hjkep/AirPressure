@@ -1,0 +1,54 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    ports:
+      - '80:80'
+    volumes:
+      - .:/var/www/app
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - php
+    networks:
+      - air-pressure
+
+  php:
+    build: 
+      context: .
+      dockerfile: ./docker/DockerFile
+    container_name: air-pressure-php
+    
+    restart: unless-stopped
+    user: 'www-data'
+    ports:
+      - '9000:9000'
+    networks:
+      - air-pressure
+    depends_on:
+      - db
+    volumes: 
+      - .:/var/www/app
+      - composer-data:/var/www/.composer
+  
+  db: 
+    image: mysql:latest
+    restart: unless-stopped
+    container_name: air-pressure-db
+    networks:
+      - air-pressure
+    ports:
+      - "3307:3307"
+    environment:
+      MYSQL_ROOT_PASSWORD: airpressure-rt-pwd
+      MYSQL_DATABASE: airpressure
+      MYSQL_USER: airpressure
+      MYSQL_PASSWORD: airpressure-pwd
+    volumes:
+      - mysql:/var/lib/mysql
+
+volumes:
+  composer-data:
+  mysql:
+  
+networks:
+  air-pressure:

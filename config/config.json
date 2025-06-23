@@ -1,0 +1,23 @@
+{
+    "environment": "development",
+    "database": {
+        "host": "air-pressure-db",
+        "name": "airpressure",
+        "user": "airpressure",
+        "pass": "airpressure-pwd",
+        "port": "3306"
+    },
+    "phinx": {
+        "migrations": "%%PHINX_CONFIG_DIR%%/../db/migrations",
+        "seeds": "%%PHINX_CONFIG_DIR%%/../db/seeds"
+    },
+    "location": {
+        "latitude": 52.632028937687224,
+        "longitude": 4.747606072738145
+    },
+    "api": {
+        "weatherapi": {
+            "key": ""
+        }
+    }
+}
