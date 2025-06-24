@@ -96,7 +96,7 @@ class MySQLRepository implements RepositoryInterface {
         );
     }
 
-    public function listWithRange(DateTimeInterface $start, DateTimeInterface $end): array {
+    public function listWithRange(DateTimeImmutable $start, DateTimeImmutable $end): array {
         $sql = "SELECT * FROM airpressure WHERE created >= :created_start AND created <= :created_end ORDER BY id ASC limit 1000";
 
         $statement = $this->getPdo()->prepare($sql);
@@ -170,7 +170,7 @@ class MySQLRepository implements RepositoryInterface {
         );
     }
 
-    public function getWithLastModifiedAndPressure(DateTimeInterface $lastModified, float $pressure): ?AirPressurePoint {
+    public function getWithLastModifiedAndPressure(DateTimeImmutable $lastModified, float $pressure): ?AirPressurePoint {
         $statement = $this->getPdo()->prepare('SELECT * FROM airpressure WHERE last_modified = :last_modified AND pressure = :pressure LIMIT 1');
         $statement->execute([
             'last_modified' => $lastModified->format(self::DATE_FORMAT_TIMESTAMP),

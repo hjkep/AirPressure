@@ -3,12 +3,12 @@
 namespace AirPressure\Services\Repository;
 
 use AirPressure\Model\AirPressurePoint;
-use DateTimeInterface;
+use DateTimeImmutable;
 
 interface RepositoryInterface {
     public function get(int $id): AirPressurePoint;
 
-    public function getWithLastModifiedAndPressure(DateTimeInterface $lastModified, float $pressure): ?AirPressurePoint;
+    public function getWithLastModifiedAndPressure(DateTimeImmutable $lastModified, float $pressure): ?AirPressurePoint;
 
     public function save(AirPressurePoint $model): AirPressurePoint;
 
@@ -19,5 +19,5 @@ interface RepositoryInterface {
      */
     public function list(): array;
 
-    public function listWithRange(DateTimeInterface $start, DateTimeInterface $end): array;
+    public function listWithRange(DateTimeImmutable $start, DateTimeImmutable $end): array;
 }

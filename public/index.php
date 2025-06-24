@@ -37,11 +37,11 @@ $app->get('/', function (Request $request, Response $response, $args) {
         <script src=" https://cdn.jsdelivr.net/npm/luxon@3.6.1/build/global/luxon.min.js "></script>
         
         <script>
-            const ctx = document.getElementById('chart');
-            const labels = ['One', 'Two', 'Three'];
+            const ctx = document.getElementById('chart'),
+                now = luxon.DateTime.now();
 
             let start = '2025-01-01';
-            let end = '2025-06-23';
+            let end = now.toFormat('yyyy-MM-dd');
 
             async function getChartData() {
                 const url = '/data?' + new URLSearchParams({
@@ -76,10 +76,6 @@ $app->get('/', function (Request $request, Response $response, $args) {
                         }]
                     },
                     options: {
-                        y: {
-                            min: 900,
-                            max: 1100
-                        },
                         plugins: {
                             tooltip: {
                                 callbacks: {
