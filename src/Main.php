@@ -35,7 +35,7 @@ class Main {
         
         $result = $parser->parse();
 
-        $cliAction = $result->options['mode'];
+        $cliAction = $result->options['mode'] ?? ExecuteMode::Gather->value;
         if (!is_string($cliAction)) {
             self::_log('Mode not valid, stopping');
             return;
@@ -55,29 +55,6 @@ class Main {
                 );
                 $run->run();
                 break;
-
-            case ExecuteMode::List:
-                $run = new ListAction();
-                $run->run();
-                break;
-
-            case ExecuteMode::Interpret:
-                $run = new InterpretAction();
-                $run->run(); 
-                break;
-
-            case ExecuteMode::Current:
-                $run = new CurrentAction();
-                $run->run();
-                break;
         }
-    }
-
-    public static function getEnvironmentVariable(string $name): string {
-        $variable = getenv($name);
-        if (!is_string($variable)) {
-            throw new \Exception('Environment variable does not exist ');
-        }
-        return $variable;
     }
 }
