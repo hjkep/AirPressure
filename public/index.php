@@ -11,7 +11,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = AppFactory::create();
 
 $app->get('/', function (Request $request, Response $response, $args) {
-    $response->getBody()->write(file_get_contents(__DIR__.'/../src/index.html'));
+    $response->getBody()->write(file_get_contents(__DIR__.'/../index.html'));
     return $response;
 });
 
