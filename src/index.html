@@ -1,0 +1,151 @@
+<!doctype html>
+<html class="bg-neutral-300 text-stone">
+    <head>
+        <title>Air pressure</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
+        <link href="./style.css" rel="stylesheet" type="text/css" />
+        <link rel="icon" href="static/favicon.svg" sizes="any" type="image/svg+xml">
+    </head>
+    <body>
+        <main class="w-160 mx-auto my-8">
+            <section class="rounded-md bg-neutral-200 p-4">
+                <h1 class="text-3xl font-bold mb-4">
+                    Air pressure
+                </h1>
+                <p>
+                    The current and historic air pressure for Alkmaar, the Netherlands.<br>
+                    Also includes current chance for headache based on air pressure differences or on current air pressure.
+                </p>
+            </section>
+
+            <section class="columns-2 gap-4 my-4">
+
+                <div class="rounded-md bg-neutral-200">
+                    <p class="p-4">
+                        Air pressure difference headache?
+                    </p>
+                    <div class="indicator rounded-b-md p-2 js-difference js-negative block bg-green-500 text-green-900 font-bold text-center">
+                        No
+                    </div>
+                    <div class="indicator rounded-b-md p-2 js-difference js-positive hidden bg-red-500 text-red-900 font-bold text-center">
+                        Yes
+                        <em class="block text-xs pt-2 text-red-700">If air pressure difference between days is between 6 and 10, there is a chance for a headache</em>
+                    </div>
+                </div>
+                <div class="rounded-md bg-neutral-200">
+                    <p class="p-4">
+                        Current air pressure headache?
+                    </p>
+                    <div class="indicator rounded-b-md p-2 js-current js-negative block bg-green-500 text-green-900 font-bold text-center">
+                        No
+                    </div>
+                    <div class="indicator rounded-b-md p-2 js-current js-positive hidden bg-red-500 text-red-900 font-bold text-center">
+                        Yes
+                        <em class="block text-xs pt-2 text-red-700">If current air pressure is between 1003 and 1007, there is a chance for a headache</em>
+                    </div>
+                </div>
+            </section>
+
+            <section class="p-4 h-100 rounded-md bg-neutral-200">
+                <canvas id="chart"></canvas>
+            </section>
+
+        </main>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src=" https://cdn.jsdelivr.net/npm/luxon@3.6.1/build/global/luxon.min.js "></script>
+        
+        <script>
+            const ctx = document.getElementById('chart'),
+                now = luxon.DateTime.now();
+
+            let start = '2025-01-01';
+            let end = now.toFormat('yyyy-MM-dd');
+
+            applyInterpreted = (interpreted) => {
+                if (!interpreted) {
+                    return;
+                }
+
+                const classDifference = '.js-difference',
+                    classCurrent = '.js-current';
+
+                [
+                    {cls: classDifference, positive: interpreted.historicPressureChanceForHeadache}, 
+                    {cls: classCurrent, positive: interpreted.currentPressureChanceForHeadache}
+                ].forEach(obj => {
+                    const toShow = document.querySelectorAll(`${obj.cls}.${obj.positive ? 'js-positive' : 'js-negative'}`)[0],
+                        toHide = document.querySelectorAll(`${obj.cls}.${obj.positive ? 'js-negative' : 'js-positive'}`)[0];
+
+                    toShow.classList.add('block');
+                    toShow.classList.remove('hidden');
+
+                    toHide.classList.add('hidden');
+                    toHide.classList.remove('block');
+                });
+            };
+
+            applyChart = (result) => {
+                new Chart(ctx, {
+                    type: 'line',
+                    height: 400,
+                    data: {
+                        labels: result.list.map(e => luxon.DateTime.fromISO(e.created).toISODate()),
+                        datasets: [{
+                            label: 'Air pressure for Alkmaar',
+                            data: result.list.map(e => {
+                                return {
+                                    y: e.pressure, 
+                                    x: luxon.DateTime.fromISO(e.created).toISODate(),
+                                    original: e
+                                };
+                            }
+                            ),
+                            borderColor: '#acbdef',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return luxon.DateTime.fromISO(context[0].raw.original.created).toLocaleString(luxon.DateTime.DATETIME_FULL);
+                                    },
+                                    label: function(context) {
+                                        return context.raw.original.pressure;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                min: 1000,
+                                max: 1030,
+                                ticks: {
+                                    stepSize: 10
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            getChartData = async () => {
+                const url = '/data?' + new URLSearchParams({
+                    start: start,
+                    end: end,
+                }).toString();
+
+                const result = await fetch(url).then(response => response.json());
+
+                applyInterpreted(result?.interpreted);
+
+                applyChart(result);
+            }
+
+            getChartData();
+        </script>
+    </body>
+</html>
