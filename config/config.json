@@ -13,7 +13,8 @@
     },
     "location": {
         "latitude": 52.632028937687224,
-        "longitude": 4.747606072738145
+        "longitude": 4.747606072738145,
+        "name": "Alkmaar, the Netherlands"
     },
     "api": {
         "weatherapi": {

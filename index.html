@@ -9,45 +9,33 @@
     </head>
     <body>
         <main class="w-160 mx-auto my-8">
-            <section class="rounded-md bg-neutral-200 p-4">
+            <section class="rounded-md bg-neutral-200 p-4 shadow-md">
                 <h1 class="text-3xl font-bold mb-4">
                     Air pressure
                 </h1>
                 <p>
-                    The current and historic air pressure for Alkmaar, the Netherlands.<br>
+                    The current and historic air pressure for <span class="js-location-name">...</span>.<br>
                     Also includes current chance for headache based on air pressure differences or on current air pressure.
                 </p>
             </section>
 
             <section class="columns-2 gap-4 my-4">
 
-                <div class="rounded-md bg-neutral-200">
+                <div class="rounded-md bg-neutral-200 shadow-md" id="display-difference" data-positive-explanation="If air pressure difference between days is between 6 and 10, there is a chance for a headache">
                     <p class="p-4">
                         Air pressure difference headache?
                     </p>
-                    <div class="indicator rounded-b-md p-2 js-difference js-negative block bg-green-500 text-green-900 font-bold text-center">
-                        No
-                    </div>
-                    <div class="indicator rounded-b-md p-2 js-difference js-positive hidden bg-red-500 text-red-900 font-bold text-center">
-                        Yes
-                        <em class="block text-xs pt-2 text-red-700">If air pressure difference between days is between 6 and 10, there is a chance for a headache</em>
-                    </div>
+                    <div class="displayslot"></div>
                 </div>
-                <div class="rounded-md bg-neutral-200">
+                <div class="rounded-md bg-neutral-200 shadow-md" id="display-current" data-positive-explanation="If current air pressure is between 1003 and 1007, there is a chance for a headache">
                     <p class="p-4">
                         Current air pressure headache?
                     </p>
-                    <div class="indicator rounded-b-md p-2 js-current js-negative block bg-green-500 text-green-900 font-bold text-center">
-                        No
-                    </div>
-                    <div class="indicator rounded-b-md p-2 js-current js-positive hidden bg-red-500 text-red-900 font-bold text-center">
-                        Yes
-                        <em class="block text-xs pt-2 text-red-700">If current air pressure is between 1003 and 1007, there is a chance for a headache</em>
-                    </div>
+                    <div class="displayslot"></div>
                 </div>
             </section>
 
-            <section class="p-4 h-100 rounded-md bg-neutral-200">
+            <section class="p-4 h-100 rounded-md bg-neutral-200 my-4 shadow-md">
                 <div id="chart-loader" class="block mx-auto w-8 my-20">
                     <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
@@ -55,10 +43,44 @@
                     </svg>
                     <span class="sr-only">Loading...</span>
                 </div>
-                <canvas id="chart"></canvas>
+                <canvas id="chart" aria-label="Chart showing air pressure for the last few days" role="img">Chart showing air pressure for the last few days</canvas>
             </section>
 
+            <section class="p-8 rounded-md bg-neutral-200 my-4 shadow-md">
+                <div class="w-80 mx-auto overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500" width="100%">
+                        <caption class="mb-4 text-black">Table with air pressure measurements for the last few days</caption>
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Date</th>
+                                <th scope="col" class="px-6 py-3">Air pressure</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-rows"></tbody>
+                    </table>
+                </div>
+            </section>
         </main>
+
+        <template id="js-headache-indicator-positive">
+            <div class="indicator rounded-b-md p-2 bg-red-500 text-black font-bold text-center">
+                Yes
+                <em class="block text-xs pt-2 explanation"></em>
+            </div>
+        </template>
+
+        <template id="js-headache-indicator-negative">
+            <div class="indicator rounded-b-md p-2 bg-green-500 text-black font-bold text-center">
+                No
+            </div>
+        </template>
+
+        <template id="js-table-template">
+            <tr class="odd:bg-white even:bg-gray-50 border-b border-gray-200">
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+            </tr>
+        </template>
         
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/luxon@3.6.1/build/global/luxon.min.js"></script>
@@ -67,29 +89,34 @@
             const ctx = document.getElementById('chart'),
                 now = luxon.DateTime.now();
 
-            let start = '2025-01-01';
-            let end = now.toFormat('yyyy-MM-dd');
+            let start = luxon.DateTime.now().minus({days: 14}).toFormat('yyyy-MM-dd');
+            let end = luxon.DateTime.now().toFormat('yyyy-MM-dd');
 
             applyInterpreted = (interpreted) => {
                 if (!interpreted) {
                     return;
                 }
 
-                const classDifference = '.js-difference',
-                    classCurrent = '.js-current';
+                const negativeTemplate = document.querySelector('#js-headache-indicator-negative'),
+                    positiveTemplate = document.querySelector('#js-headache-indicator-positive');
 
                 [
-                    {cls: classDifference, positive: interpreted.historicPressureChanceForHeadache}, 
-                    {cls: classCurrent, positive: interpreted.currentPressureChanceForHeadache}
-                ].forEach(obj => {
-                    const toShow = document.querySelectorAll(`${obj.cls}.${obj.positive ? 'js-positive' : 'js-negative'}`)[0],
-                        toHide = document.querySelectorAll(`${obj.cls}.${obj.positive ? 'js-negative' : 'js-positive'}`)[0];
-
-                    toShow.classList.add('block');
-                    toShow.classList.remove('hidden');
-
-                    toHide.classList.add('hidden');
-                    toHide.classList.remove('block');
+                    ['difference', interpreted.historicPressureChanceForHeadache], 
+                    ['current', interpreted.currentPressureChanceForHeadache]
+                ].forEach(type => {
+                    const display = document.querySelector(`#display-${type[0]}`),
+                        displayslot = display.querySelector('.displayslot');
+                    
+                    if (type[1]) {
+                        const indicator = positiveTemplate.content.cloneNode(true);
+                        indicator.querySelector('.explanation').textContent = display.getAttribute('data-positive-explanation');
+                        displayslot.innerHTML = '';
+                        displayslot.appendChild(indicator);
+                    } else {
+                        const indicator = negativeTemplate.content.cloneNode(true);
+                        displayslot.innerHTML = '';
+                        displayslot.appendChild(indicator);
+                    }
                 });
             };
 
@@ -104,7 +131,7 @@
                     data: {
                         labels: result.list.map(e => luxon.DateTime.fromISO(e.created).toISODate()),
                         datasets: [{
-                            label: 'Air pressure for Alkmaar',
+                            label: `Air pressure for ${result.location.name}`,
                             data: result.list.map(e => {
                                 return {
                                     y: e.pressure, 
@@ -143,6 +170,21 @@
                 });
             }
 
+            applyTable = (result) => {
+                const tableRows = document.getElementById('table-rows'),
+                    template = document.querySelector('#js-table-template');
+
+                result.list.forEach(row => {
+                    const rowEl = template.content.cloneNode(true),
+                        tds = rowEl.querySelectorAll('td');
+
+                    [(row) => luxon.DateTime.fromISO(row.created).toFormat('yyyy-MM-dd HH:mm'), (row) => row.pressure].forEach((col, index) => {
+                        tds[index].innerText = `${col(row)}`;
+                    });
+                    tableRows.appendChild(rowEl);
+                });
+            }
+
             getChartData = async () => {
                 const url = '/data?' + new URLSearchParams({
                     start: start,
@@ -151,9 +193,11 @@
 
                 const result = await fetch(url).then(response => response.json());
 
-                applyInterpreted(result?.interpreted);
+                document.querySelector('.js-location-name').innerText = result.location.name;
 
+                applyInterpreted(result?.interpreted);
                 applyChart(result);
+                applyTable(result);
             }
 
             getChartData();
