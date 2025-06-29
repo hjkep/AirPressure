@@ -8,7 +8,7 @@
         <link rel="icon" href="static/favicon.svg" sizes="any" type="image/svg+xml">
     </head>
     <body>
-        <main class="w-160 mx-auto my-8">
+        <main class="w-full md:w-160 mx-auto my-2 md:my-4 p-4">
             <section class="rounded-md bg-neutral-200 p-4 shadow-md">
                 <h1 class="text-3xl font-bold mb-4">
                     Air pressure
@@ -19,15 +19,15 @@
                 </p>
             </section>
 
-            <section class="columns-2 gap-4 my-4">
+            <section class="md:columns-2 md:gap-4 mt-4">
 
-                <div class="rounded-md bg-neutral-200 shadow-md" id="display-difference" data-positive-explanation="If air pressure difference between days is between 6 and 10, there is a chance for a headache">
+                <div class="rounded-md bg-neutral-200 shadow-md mb-4" id="display-difference" data-positive-explanation="If air pressure difference between days is between 6 and 10, there is a chance for a headache">
                     <p class="p-4">
                         Air pressure difference headache?
                     </p>
                     <div class="displayslot"></div>
                 </div>
-                <div class="rounded-md bg-neutral-200 shadow-md" id="display-current" data-positive-explanation="If current air pressure is between 1003 and 1007, there is a chance for a headache">
+                <div class="rounded-md bg-neutral-200 shadow-md mb-4" id="display-current" data-positive-explanation="If current air pressure is between 1003 and 1007, there is a chance for a headache">
                     <p class="p-4">
                         Current air pressure headache?
                     </p>
@@ -35,7 +35,8 @@
                 </div>
             </section>
 
-            <section class="p-4 h-100 rounded-md bg-neutral-200 my-4 shadow-md">
+            <section class="p-4 rounded-md bg-neutral-200 mb-4 shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Chart</h2>
                 <div id="chart-loader" class="block mx-auto w-8 my-20">
                     <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
@@ -46,10 +47,11 @@
                 <canvas id="chart" aria-label="Chart showing air pressure for the last few days" role="img">Chart showing air pressure for the last few days</canvas>
             </section>
 
-            <section class="p-8 rounded-md bg-neutral-200 my-4 shadow-md">
-                <div class="w-80 mx-auto overflow-x-auto">
+            <section class="p-4 rounded-md bg-neutral-200 my-4 shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Table</h2>
+                <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500" width="100%">
-                        <caption class="mb-4 text-black">Table with air pressure measurements for the last few days</caption>
+                        <caption class="mb-4 text-black text-left">Table with air pressure measurements for the last few days</caption>
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3">Date</th>
@@ -131,7 +133,7 @@
                     data: {
                         labels: result.list.map(e => luxon.DateTime.fromISO(e.created).toISODate()),
                         datasets: [{
-                            label: `Air pressure for ${result.location.name}`,
+                            label: `Air pressure for ${result.location.name} in mbar`,
                             data: result.list.map(e => {
                                 return {
                                     y: e.pressure, 
@@ -162,7 +164,8 @@
                                 min: 1000,
                                 max: 1030,
                                 ticks: {
-                                    stepSize: 10
+                                    stepSize: 10,
+                                    callback: value => `${value} mbar`
                                 }
                             }
                         }
@@ -174,7 +177,7 @@
                 const tableRows = document.getElementById('table-rows'),
                     template = document.querySelector('#js-table-template');
 
-                result.list.forEach(row => {
+                result.list.reverse().forEach(row => {
                     const rowEl = template.content.cloneNode(true),
                         tds = rowEl.querySelectorAll('td');
 
