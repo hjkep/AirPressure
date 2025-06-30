@@ -15,7 +15,7 @@ services:
   php:
     build: 
       context: .
-      dockerfile: ./docker/DockerFile
+      dockerfile: ./docker/php/DockerFile
     container_name: air-pressure-php
     
     restart: unless-stopped

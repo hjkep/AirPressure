@@ -9,6 +9,9 @@ use DateTimeImmutable;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 class DataController {
     public function serve(Request $request, Response $response, $args): Response {
         parse_str($request->getUri()->getQuery(), $parsed);

@@ -4,7 +4,6 @@ namespace AirPressure\Services\Fetcher;
 
 use AirPressure\Loggable;
 use AirPressure\Model\AirPressurePoint;
-use AirPressure\Model\CurrentWeather\CurrentWeatherResponse;
 use DateTimeImmutable;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;

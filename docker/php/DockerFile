@@ -1,11 +1,14 @@
 FROM php:8.4-fpm-bookworm AS php-hj-base
+COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git && \
     docker-php-ext-install pdo_mysql && \
     apt-get install -y zip unzip && \
-    git config --global --add safe.directory '*'
-COPY docker/.gitconfig.web /var/www/.gitconfig
+    git config --global --add safe.directory '*' && \
+    pecl install xdebug-3.4.4 \
+	docker-php-ext-enable xdebug
+COPY docker/php/.gitconfig.web /var/www/.gitconfig
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 RUN mkdir -p /var/www/.composer && \
     chown -R www-data:www-data /var/www/.composer
