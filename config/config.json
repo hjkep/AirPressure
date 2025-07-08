@@ -1,5 +1,4 @@
 {
-    "environment": "development",
     "database": {
         "host": "air-pressure-db",
         "name": "airpressure",

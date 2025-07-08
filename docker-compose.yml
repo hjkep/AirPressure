@@ -26,6 +26,7 @@ services:
       - air-pressure
     depends_on:
       - db
+    env_file: .env
     volumes: 
       - .:/var/www/app
       - composer-data:/var/www/.composer

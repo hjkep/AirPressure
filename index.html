@@ -19,15 +19,15 @@
                 </p>
             </section>
 
-            <section class="md:columns-2 md:gap-4 mt-4">
+            <section class="md:columns-2 md:gap-4 my-4">
 
-                <div class="rounded-md bg-neutral-200 shadow-md mb-4" id="display-difference" data-positive-explanation="If air pressure difference between days is between 6 and 10, there is a chance for a headache">
+                <div class="rounded-md bg-neutral-200 shadow-md mb-4 md:mb-0" id="display-difference" data-positive-explanation="If air pressure difference between days is between 6 and 10, there is a chance for a headache">
                     <p class="p-4">
                         Air pressure difference headache?
                     </p>
                     <div class="displayslot"></div>
                 </div>
-                <div class="rounded-md bg-neutral-200 shadow-md mb-4" id="display-current" data-positive-explanation="If current air pressure is between 1003 and 1007, there is a chance for a headache">
+                <div class="rounded-md bg-neutral-200 shadow-md mb-4 md:mb-0" id="display-current" data-positive-explanation="If current air pressure is between 1003 and 1007, there is a chance for a headache">
                     <p class="p-4">
                         Current air pressure headache?
                     </p>
@@ -91,8 +91,8 @@
             const ctx = document.getElementById('chart'),
                 now = luxon.DateTime.now();
 
-            let start = luxon.DateTime.now().minus({days: 14}).toFormat('yyyy-MM-dd');
-            let end = luxon.DateTime.now().toFormat('yyyy-MM-dd');
+            let start = luxon.DateTime.now().minus({days: 14}).toFormat('yyyy-MM-dd'),
+                end = luxon.DateTime.now().toFormat('yyyy-MM-dd');
 
             applyInterpreted = (interpreted) => {
                 if (!interpreted) {
